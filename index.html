@@ -658,21 +658,23 @@ function buildRegionTree(validData) {
     const container = document.getElementById('regionOptions');
     const cityToProvince = {};
     const provinceCities = {};
+    const provinceCount = {};
 
     // 收集省份→城市映射
     validData.forEach(r => {
         const city = r['项目地区'];
         if (!city) return;
-        const province = getProvince(city);
+        const province = r['省份'] || getProvince(city);
         if (!provinceCities[province]) {
             provinceCities[province] = new Set();
             cityToProvince[city] = province;
         }
         provinceCities[province].add(city);
+        provinceCount[province] = (provinceCount[province] || 0) + 1;
     });
 
-    // 按省份名排序
-    const provinces = Object.keys(provinceCities).sort();
+    // 按企业数量降序排序
+    const provinces = Object.keys(provinceCities).sort((a, b) => (provinceCount[b] || 0) - (provinceCount[a] || 0));
 
     container.innerHTML = provinces.map(province => {
         const cities = [...provinceCities[province]].sort();
